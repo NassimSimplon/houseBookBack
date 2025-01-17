@@ -1,0 +1,50 @@
+<!-- public/customSwaggerUI.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #swagger-ui {
+            margin-top: 20px;
+        }
+        .nav-dropdown {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Documentation</h1>
+    <select class="nav-dropdown" id="swagger-nav">
+        <option value="">Select an API</option>
+        <option value="/api-docs/auth">Authentication API</option>
+        <option value="/api-docs/users">User Management API</option>
+    </select>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+    <script>
+        const ui = SwaggerUIBundle({
+            url: window.location.pathname.includes('/auth') ? '/api-docs/auth' : '/api-docs/users', // Dynamically load the correct OpenAPI document
+            dom_id: '#swagger-ui',
+            presets: [
+                SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout",
+            onComplete: () => {
+                document.getElementById('swagger-nav').onchange = function() {
+                    if (this.value) {
+                        window.location.href = this.value; // Redirect to selected API documentation
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+</html>

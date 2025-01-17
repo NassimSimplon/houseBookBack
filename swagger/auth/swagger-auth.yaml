@@ -1,0 +1,156 @@
+openapi: 3.0.0
+info:
+  title: User Authentication API
+  version: 1.0.0
+  description: API for user registration and login.
+
+servers:
+  - url: http://localhost:3000/api
+
+security:
+  - bearerAuth: []  # Applies Bearer token security globally
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user.
+                email:
+                  type: string
+                  format: email
+                  description: The email of the user. Must be unique.
+                  example: user@example.com
+                password:
+                  type: string
+                  description: The password for the user.
+                  example: Imed.nass123456
+                phone:
+                  type: string
+                  description: The phone number of the user.
+                  example: +1234567890
+                title:
+                  type: string
+                  description: The title of the user.
+                  example: User
+              required:
+                - username
+                - email
+                - password
+                - phone
+      responses:
+        '201':
+          description: User registered successfully. A verification email is sent.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered. Please verify your email.
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Validation failed.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Registration failed.
+
+  /api/auth/login:
+    post:
+      summary: Login an existing user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The email of the user.
+                  example: user@example.com
+                password:
+                  type: string
+                  description: The password of the user.
+                  example: Imed.nass123456
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful. Returns an access token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful.
+                  token:
+                    type: string
+                    description: The access token for the user.
+                    example: eyJhbGciOiJIUzI1NiIsInR...
+        '400':
+          description: Bad request. Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Bad request.
+        '401':
+          description: Unauthorized. Invalid credentials or email not verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid credentials.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error during login.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

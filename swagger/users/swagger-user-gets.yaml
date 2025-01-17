@@ -1,0 +1,209 @@
+openapi: 3.0.0
+info:
+  title: User Management API
+  version: 1.0.0
+  description: API for managing users, including retrieving all users and getting user details by ID.
+servers:
+  - url: http://localhost:3000/api
+security:
+  - bearerAuth: []  # Applies Bearer token security globally
+paths:
+  /api/user/gets:
+    get:
+      summary: Get all users
+      operationId: getAllUsers
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1
+            description: The page number to retrieve.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+            description: The number of users to retrieve per page.
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+            example: username,email
+            description: Comma-separated list of fields to return.
+      responses:
+        '200':
+          description: Users retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Users retrieved successfully.
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    type: object
+                    properties:
+                      totalUsers:
+                        type: integer
+                        example: 100
+                      totalPages:
+                        type: integer
+                        example: 10
+                      currentPage:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 10
+                      hasNextPage:
+                        type: boolean
+                        example: true
+                      hasPrevPage:
+                        type: boolean
+                        example: false
+        '403':
+          description: Forbidden due to insufficient permissions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your role has changed since the token was issued.
+        '404':
+          description: No users found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No users found.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving users.
+
+  /api/user/gets/{id}:
+    get:
+      summary: Get user by ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "12345"
+            description: The ID of the user to retrieve.
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+            example: username,email
+            description: Comma-separated list of fields to return.
+      responses:
+        '200':
+          description: User retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User retrieved successfully.
+                  data:
+                    $ref: '#/components/schemas/User'  # Reference to User schema
+        '400':
+          description: Invalid user ID provided.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: A valid user ID is required.
+        '403':
+          description: Forbidden due to insufficient permissions.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: You do not have permission to access this user.
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error retrieving user.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: johndoe
+        image:
+          type: string
+          example: http://example.com/image.jpg
+        email:
+          type: string
+          format: email
+          example: johndoe@example.com
+        Title:
+          type: string
+          example: Mr.
+        phone:
+          type: string
+          example: 123-456-7890
+        verified:
+          type: boolean
+          example: true
+        role:
+          type: string
+          enum: [admin, user, owner, subAdmin]
+          example: user

@@ -1,0 +1,121 @@
+openapi: 3.0.0
+info:
+  title: User Verification API
+  description: API for user verification, including generating and verifying tokens.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+
+security:
+  - bearerAuth: []  # Applies Bearer token security globally
+
+paths:
+  /api/account/generate-token:
+    post:
+      summary: Generate a new verification token
+      operationId: generateToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The email of the user requesting a new verification token.
+              required:
+                - email
+      responses:
+        '200':
+          description: New verification token sent to the user's email.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: New verification token sent to your email.
+        '400':
+          description: Bad request due to validation errors.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: User not found.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to update verification token.
+
+  /api/account/verify-email:
+    get:
+      summary: Verify a user's email
+      operationId: verifyEmail
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: The verification token sent to the user's email.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email verified successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verified successfully.
+        '400':
+          description: Bad request due to validation errors.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Token is required.
+        '401':
+          description: Unauthorized due to invalid token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid token.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to update user verification status.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
